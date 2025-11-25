@@ -81,24 +81,7 @@ export default function AtomVisualizer({ element, speed, zoom }: AtomVisualizerP
         role="img"
       >
         <title id="atom-title">{element.name_bn} পরমাণুর গঠন</title>
-        <defs>
-          {shells.map((_, shellIndex) => {
-            const shellRadius = nucleusRadius + (shellIndex + 1) * shellGap;
-            return (
-              <path
-                key={`shell-path-def-${shellIndex}`}
-                id={`shell-path-${shellIndex}`}
-                d={`
-                  M ${viewboxSize / 2 + shellRadius}, ${viewboxSize / 2}
-                  a ${shellRadius},${shellRadius} 0 1,0 0,-0.0001
-                  z
-                `}
-                fill="none"
-              />
-            );
-          })}
-        </defs>
-
+        
         <g transform={`translate(${viewboxSize / 2}, ${viewboxSize / 2})`}>
           {/* Shells */}
           {shells.map((_, shellIndex) => {
@@ -135,29 +118,36 @@ export default function AtomVisualizer({ element, speed, zoom }: AtomVisualizerP
             const baseDuration = 30; // A higher base makes the slider effect more noticeable
             const minSpeedFactor = 0.1; // So it doesn't stop
             const maxSpeedFactor = 4;
+            const shellRadius = nucleusRadius + (shellIndex + 1) * shellGap;
             
             for (let i = 0; i < electronCount; i++) {
                 
               const speedFactor = minSpeedFactor + ((100 - speed) / 100) * (maxSpeedFactor - minSpeedFactor);
               const duration = (baseDuration + shellIndex * 5) * speedFactor;
 
-              const startOffset = i / electronCount;
+              const startAngle = (i / electronCount) * 360;
+              const randomPhase = Math.random() * 360;
+              
+              const rotationAngle = startAngle + randomPhase;
 
               electronsInShell.push(
-                <circle
-                  key={`shell-${shellIndex}-electron-${i}`}
-                  r={ELECTRON_RADIUS}
-                  fill="hsl(var(--accent))"
-                  style={{ filter: 'drop-shadow(0 0 4px hsl(var(--accent)))' }}
-                >
-                  <animateMotion
-                    dur={`${duration}s`}
-                    repeatCount="indefinite"
-                    begin={`${startOffset * duration}s`}
-                  >
-                    <mpath href={`#shell-path-${shellIndex}`} />
-                  </animateMotion>
-                </circle>
+                <g key={`shell-${shellIndex}-electron-${i}`} style={{ animation: `rotate ${duration}s linear infinite`, animationDelay: `-${(i/electronCount) * duration}s`}}>
+                    <style>
+                        {`
+                        @keyframes rotate {
+                            from { transform: rotate(0deg); }
+                            to { transform: rotate(360deg); }
+                        }
+                        `}
+                    </style>
+                    <circle
+                        cx={shellRadius}
+                        cy="0"
+                        r={ELECTRON_RADIUS}
+                        fill="hsl(var(--accent))"
+                        style={{ filter: 'drop-shadow(0 0 4px hsl(var(--accent)))' }}
+                    />
+                </g>
               );
             }
             return electronsInShell;

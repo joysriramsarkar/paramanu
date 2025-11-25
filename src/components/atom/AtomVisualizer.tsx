@@ -3,6 +3,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import type { ElementData } from '@/lib/data';
+import styles from './AtomVisualizer.module.css';
 
 interface AtomVisualizerProps {
   element: ElementData;
@@ -120,33 +121,31 @@ export default function AtomVisualizer({ element, speed, zoom }: AtomVisualizerP
               const duration = (baseDuration + shellIndex * 5) * speedFactor;
 
               const randomPhase = Math.random() * duration;
+              const initialRotation = (i / electronCount) * 360;
 
               electronsInShell.push(
-                <g key={`shell-${shellIndex}-electron-${i}`}>
-                    <style>
-                        {`
-                        @keyframes rotate-${shellIndex}-${i} {
-                            from { transform: rotate(0deg); }
-                            to { transform: rotate(360deg); }
-                        }
-                        `}
-                    </style>
-                     <circle
-                        cx={shellRadius}
-                        cy="0"
-                        r={ELECTRON_RADIUS}
-                        fill="hsl(var(--accent))"
-                        style={{ 
-                          filter: 'drop-shadow(0 0 4px hsl(var(--accent)))',
-                          animationName: `rotate-${shellIndex}-${i}`,
-                          animationDuration: `${duration}s`,
-                          animationTimingFunction: 'linear',
-                          animationIterationCount: 'infinite',
-                          animationDelay: `-${randomPhase}s`,
-                          transformOrigin: '0 0',
-                          transform: `rotate(${(i / electronCount) * 360}deg)`
-                        }}
-                    />
+                <g
+                  key={`shell-${shellIndex}-electron-${i}`}
+                  style={{
+                    transform: `rotate(${initialRotation}deg)`,
+                    transformOrigin: '0 0',
+                  }}
+                >
+                  <circle
+                    cx={shellRadius}
+                    cy="0"
+                    r={ELECTRON_RADIUS}
+                    fill="hsl(var(--accent))"
+                    className={styles.electron}
+                    style={
+                      {
+                        filter: 'drop-shadow(0 0 4px hsl(var(--accent)))',
+                        animationDuration: `${duration}s`,
+                        animationDelay: `-${randomPhase}s`,
+                        transformOrigin: '0 0',
+                      } as React.CSSProperties
+                    }
+                  />
                 </g>
               );
             }

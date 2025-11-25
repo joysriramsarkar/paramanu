@@ -90,7 +90,7 @@ export default function AtomVisualizer({ element, speed, zoom }: AtomVisualizerP
                 id={`shell-path-${shellIndex}`}
                 d={`
                   M ${viewboxSize / 2 + shellRadius}, ${viewboxSize / 2}
-                  a ${shellRadius},${shellRadius} 0 1,1 0,-0.0001
+                  a ${shellRadius},${shellRadius} 0 1,0 0,-0.0001
                   z
                 `}
                 fill="none"

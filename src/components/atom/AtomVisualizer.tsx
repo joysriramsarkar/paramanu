@@ -14,8 +14,6 @@ const ELECTRON_RADIUS = 4;
 const SHELL_GAP = 35;
 
 const generateRandomInCircle = (radius: number) => {
-    // Ensure we run this only on the client
-    if (typeof window === 'undefined') return { x: 0, y: 0 };
     const t = 2 * Math.PI * Math.random();
     const r = Math.sqrt(Math.random()) * radius;
     return {
@@ -26,8 +24,15 @@ const generateRandomInCircle = (radius: number) => {
 
 export default function AtomVisualizer({ element }: AtomVisualizerProps) {
   const [nucleusParticles, setNucleusParticles] = useState<{ x: number; y: number; type: 'proton' | 'neutron' }[]>([]);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+
     const particles = [];
     const particleCount = element.protons + element.neutrons;
     const effectiveRadius = NUCLEUS_RADIUS - Math.max(PROTON_RADIUS, NEUTRON_RADIUS);
@@ -46,12 +51,20 @@ export default function AtomVisualizer({ element }: AtomVisualizerProps) {
     }
     
     setNucleusParticles(particles);
-  }, [element.protons, element.neutrons]);
+  }, [element.protons, element.neutrons, isClient]);
 
   const shells = element.electronConfiguration;
   const maxShellRadius = NUCLEUS_RADIUS + shells.length * SHELL_GAP;
   const viewboxSize = (maxShellRadius + ELECTRON_RADIUS + 10) * 2;
   
+  if (!isClient) {
+    return (
+      <div className="w-full h-[400px] md:h-[500px] lg:h-[600px] min-h-[400px] flex items-center justify-center bg-card rounded-lg p-4 shadow-lg">
+        {/* Render a placeholder or nothing on the server */}
+      </div>
+    );
+  }
+
   return (
     <div className="w-full h-[400px] md:h-[500px] lg:h-[600px] min-h-[400px] flex items-center justify-center bg-card rounded-lg p-4 shadow-lg">
       <svg

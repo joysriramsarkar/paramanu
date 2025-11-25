@@ -41,7 +41,6 @@ export default function AtomVisualizer({ element, speed, zoom }: AtomVisualizerP
     if (!isClient) return;
 
     const particles = [];
-    const particleCount = element.protons + element.neutrons;
     const effectiveRadius = nucleusRadius - Math.max(PROTON_RADIUS, NEUTRON_RADIUS);
 
     for (let i = 0; i < element.protons; i++) {
@@ -51,7 +50,6 @@ export default function AtomVisualizer({ element, speed, zoom }: AtomVisualizerP
       particles.push({ ...generateRandomInCircle(effectiveRadius), type: 'neutron' as const });
     }
     
-    // Shuffle particles for better visual distribution
     for (let i = particles.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [particles[i], particles[j]] = [particles[j], particles[i]];
@@ -67,7 +65,6 @@ export default function AtomVisualizer({ element, speed, zoom }: AtomVisualizerP
   if (!isClient) {
     return (
       <div className="w-full h-full min-h-[400px] flex items-center justify-center rounded-lg p-4">
-        {/* Render a placeholder or nothing on the server */}
       </div>
     );
   }
@@ -83,7 +80,6 @@ export default function AtomVisualizer({ element, speed, zoom }: AtomVisualizerP
         <title id="atom-title">{element.name_bn} পরমাণুর গঠন</title>
         
         <g transform={`translate(${viewboxSize / 2}, ${viewboxSize / 2})`}>
-          {/* Shells */}
           {shells.map((_, shellIndex) => {
             const shellRadius = nucleusRadius + (shellIndex + 1) * shellGap;
             return (
@@ -99,7 +95,6 @@ export default function AtomVisualizer({ element, speed, zoom }: AtomVisualizerP
             );
           })}
 
-          {/* Nucleus */}
           <g>
             {nucleusParticles.map((p, i) => (
               <circle
@@ -112,11 +107,10 @@ export default function AtomVisualizer({ element, speed, zoom }: AtomVisualizerP
             ))}
           </g>
 
-          {/* Electrons */}
           {shells.map((electronCount, shellIndex) => {
             const electronsInShell = [];
-            const baseDuration = 30; // A higher base makes the slider effect more noticeable
-            const minSpeedFactor = 0.1; // So it doesn't stop
+            const baseDuration = 30; 
+            const minSpeedFactor = 0.1; 
             const maxSpeedFactor = 4;
             const shellRadius = nucleusRadius + (shellIndex + 1) * shellGap;
             
@@ -125,27 +119,33 @@ export default function AtomVisualizer({ element, speed, zoom }: AtomVisualizerP
               const speedFactor = minSpeedFactor + ((100 - speed) / 100) * (maxSpeedFactor - minSpeedFactor);
               const duration = (baseDuration + shellIndex * 5) * speedFactor;
 
-              const startAngle = (i / electronCount) * 360;
-              const randomPhase = Math.random() * 360;
-              
-              const rotationAngle = startAngle + randomPhase;
+              const randomPhase = Math.random() * duration;
 
               electronsInShell.push(
-                <g key={`shell-${shellIndex}-electron-${i}`} style={{ animation: `rotate ${duration}s linear infinite`, animationDelay: `-${(i/electronCount) * duration}s`}}>
+                <g key={`shell-${shellIndex}-electron-${i}`}>
                     <style>
                         {`
-                        @keyframes rotate {
+                        @keyframes rotate-${shellIndex}-${i} {
                             from { transform: rotate(0deg); }
                             to { transform: rotate(360deg); }
                         }
                         `}
                     </style>
-                    <circle
+                     <circle
                         cx={shellRadius}
                         cy="0"
                         r={ELECTRON_RADIUS}
                         fill="hsl(var(--accent))"
-                        style={{ filter: 'drop-shadow(0 0 4px hsl(var(--accent)))' }}
+                        style={{ 
+                          filter: 'drop-shadow(0 0 4px hsl(var(--accent)))',
+                          animationName: `rotate-${shellIndex}-${i}`,
+                          animationDuration: `${duration}s`,
+                          animationTimingFunction: 'linear',
+                          animationIterationCount: 'infinite',
+                          animationDelay: `-${randomPhase}s`,
+                          transformOrigin: '0 0',
+                          transform: `rotate(${(i / electronCount) * 360}deg)`
+                        }}
                     />
                 </g>
               );

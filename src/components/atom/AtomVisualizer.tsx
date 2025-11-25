@@ -153,7 +153,7 @@ export default function AtomVisualizer({ element, speed, zoom }: AtomVisualizerP
                   <animateMotion
                     dur={`${duration}s`}
                     repeatCount="indefinite"
-                    begin={`${-duration * startOffset}s`}
+                    begin={`${startOffset * duration}s`}
                   >
                     <mpath href={`#shell-path-${shellIndex}`} />
                   </animateMotion>

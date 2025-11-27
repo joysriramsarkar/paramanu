@@ -7,6 +7,7 @@ import AtomVisualizer from "@/components/atom/AtomVisualizer";
 import ElementInfo from "@/components/atom/ElementInfo";
 import ElementSelector from "@/components/atom/ElementSelector";
 import Header from "@/components/layout/Header";
+import AITutorChat from "@/components/ai/AITutorChat";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { ZoomIn, ZoomOut, Minus, Plus } from "lucide-react";
@@ -87,6 +88,7 @@ export default function Home() {
           </div>
         </div>
       </main>
+      <AITutorChat element={selectedElement} />
     </div>
   );
 }
